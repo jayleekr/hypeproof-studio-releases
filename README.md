@@ -1,0 +1,21 @@
+# hypeproof-studio-releases
+
+Public mirror of HypeProof Studio release artifacts. The source repository
+(`jayleekr/hypeproof-studio`) is private; this public repo exists solely so
+workshop participants can install the app without GitHub access.
+
+## Install (macOS arm64)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jayleekr/hypeproof-studio-releases/main/install-mac.sh | bash
+```
+
+The script downloads the latest release zip, unzips, copies to `/Applications`,
+clears the Gatekeeper quarantine attribute, and launches the app.
+
+## Releases
+
+See [releases](https://github.com/jayleekr/hypeproof-studio-releases/releases).
+
+Each release corresponds to a tagged build of the private source repo. We
+mirror artifacts here; no source is duplicated.
