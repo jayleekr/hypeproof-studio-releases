@@ -11,6 +11,18 @@ $Tmp = New-Item -ItemType Directory -Path (Join-Path $env:TEMP ("hps-" + [Guid]:
 
 function Say($msg) { Write-Host "`n> $msg" -ForegroundColor Magenta }
 function Fail($msg) { Write-Host "ERROR: $msg" -ForegroundColor Red; exit 1 }
+function Normalize-Sha256Digest($digest) {
+    if (-not $digest) {
+        Fail "Release asset is missing a SHA256 digest. Refusing to run an unsigned installer without integrity metadata."
+    }
+
+    $text = [string]$digest
+    if ($text -notmatch "^sha256:([a-fA-F0-9]{64})$") {
+        Fail "Release asset digest has unsupported format: $text"
+    }
+
+    return $Matches[1].ToLowerInvariant()
+}
 
 try {
     $api = if ($Tag -eq "latest") {
@@ -30,9 +42,20 @@ try {
         Fail "No Windows x64 installer .exe found in $Tag release. Visit https://github.com/$Repo/releases"
     }
 
+    $expectedSha256 = Normalize-Sha256Digest $asset.digest
     $installer = Join-Path $Tmp.FullName $asset.name
+    Say "Selected $($release.tag_name) / $($asset.name)"
+    Write-Host "Expected SHA256: $expectedSha256"
+
     Say "Downloading $($asset.browser_download_url)"
     Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $installer -UseBasicParsing
+
+    Say "Verifying SHA256..."
+    $actualSha256 = (Get-FileHash -Algorithm SHA256 -Path $installer).Hash.ToLowerInvariant()
+    if ($actualSha256 -ne $expectedSha256) {
+        Fail "SHA256 mismatch for $($asset.name). Expected $expectedSha256 but got $actualSha256."
+    }
+    Write-Host "Verified SHA256: $actualSha256" -ForegroundColor Green
 
     Write-Host ""
     Write-Host "Windows SmartScreen may warn ('Windows protected your PC')." -ForegroundColor Yellow

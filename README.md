@@ -21,8 +21,8 @@ clears the Gatekeeper quarantine attribute, and launches the app.
 iwr -useb https://raw.githubusercontent.com/jayleekr/hypeproof-studio-releases/main/install-win.ps1 | iex
 ```
 
-The script downloads the latest unsigned Windows x64 installer from Releases
-and launches it.
+The script downloads the latest unsigned Windows x64 installer from Releases,
+verifies the release asset SHA256 digest, and launches it.
 
 ## Releases
 
